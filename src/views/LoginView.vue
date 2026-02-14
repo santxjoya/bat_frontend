@@ -70,8 +70,7 @@ export default {
           email: this.email,
           password: this.password
         });
-
-        localStorage.setItem("token", response.data.access_token);
+        localStorage.setItem("token", response.data.token);
         this.$router.push("/");
       } catch (error) {
         this.error = "Credenciales incorrectas";
