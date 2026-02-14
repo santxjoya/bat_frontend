@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 
 import LoginView from '../views/LoginView.vue';
+import RegisterView from "../views/RegisterView.vue";
 // import PostsList from '../components/PostsList.vue';
 
 Vue.use(Router);
@@ -13,6 +14,10 @@ const router = new Router({
       path: '/login',
       component: LoginView
     },
+    {
+      path: "/register",
+      component: RegisterView
+    }
     // {
     //   path: '/',
     //   component: PostsList
@@ -23,7 +28,7 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
 
-  if (to.path !== "/login" && !token) {
+  if (!token && to.path !== "/login" && to.path !== "/register"){
     next("/login");
   } else {
     next();

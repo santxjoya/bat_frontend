@@ -1,9 +1,18 @@
 <template>
   <div class="login-page">
-    <!-- FORM LOGIN -->
     <div class="login-container">
       <div class="card shadow-lg p-5 login-card">
-        <h4 class="text-center mb-4">Iniciar Sesión</h4>
+        <h4 class="text-center mb-4">Crear Cuenta</h4>
+
+        <div class="mb-3">
+          <label class="form-label">Nombre</label>
+          <input
+            type="text"
+            v-model="name"
+            class="form-control"
+            placeholder="Tu nombre"
+          />
+        </div>
 
         <div class="mb-3">
           <label class="form-label">Correo</label>
@@ -21,26 +30,33 @@
             type="password"
             v-model="password"
             class="form-control"
-            placeholder="********"
           />
         </div>
 
-        <button class="btn btn-outline-secondary w-100" @click="login">
-          Ingresar
-        </button>
-
-        <div class="text-center mt-3">
-          <router-link to="/register" class="text-decoration-none text-secondary">
-            ¿No tienes cuenta? Registrarse
-          </router-link>
+        <div class="mb-3">
+          <label class="form-label">Confirmar Contraseña</label>
+          <input
+            type="password"
+            v-model="password_confirmation"
+            class="form-control"
+          />
         </div>
+
+        <button class="btn btn-primary w-100" @click="register">
+          Registrarse
+        </button>
 
         <div v-if="error" class="alert alert-danger mt-3">
           {{ error }}
         </div>
+
+        <div class="text-center mt-3">
+          <router-link to="/login">
+            ¿Ya tienes cuenta? Iniciar sesión
+          </router-link>
+        </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -48,33 +64,36 @@
 import api from "@/services/api";
 
 export default {
-  name: "LoginView",
+  name: "RegisterView",
   data() {
     return {
+      name: "",
       email: "",
       password: "",
+      password_confirmation: "",
       error: null
     };
   },
   methods: {
-    async login() {
+    async register() {
       this.error = null;
 
-      if (!this.email || !this.password) {
+      if (!this.name || !this.email || !this.password) {
         this.error = "Todos los campos son obligatorios";
         return;
       }
 
       try {
-        const response = await api.post("/login", {
+        await api.post("/register", {
+          name: this.name,
           email: this.email,
-          password: this.password
+          password: this.password,
+          password_confirmation: this.password_confirmation
         });
 
-        localStorage.setItem("token", response.data.access_token);
-        this.$router.push("/");
+        this.$router.push("/login");
       } catch (error) {
-        this.error = "Credenciales incorrectas";
+        this.error = "Error al registrar usuario";
       }
     }
   }
