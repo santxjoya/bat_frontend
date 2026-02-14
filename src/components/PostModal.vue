@@ -28,8 +28,8 @@
         </div>
 
         <div class="text-end">
-          <button type="button" class="btn btn-secondary me-2" @click="close">Cerrar</button>
-          <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="button" class="btn btn-outline-secondary me-2" @click="close">Cerrar</button>
+          <button type="submit" class="btn btn-secondary">Guardar</button>
         </div>
       </form>
     </div>
@@ -37,22 +37,32 @@
 </template>
 
 <script>
-import axios from "axios";
+import api from "@/services/api";
 
 export default {
   name: "PostModal",
-  props: {
-    modelValue: Boolean,
-    title: {
-      type: String,
-      default: "Crear Post"
-    },
-    categories: {
-      type: Array,
-      default: () => []
-    }
+props: {
+  value: Boolean, // <- esto reemplaza modelValue
+  title: {
+    type: String,
+    default: "Crear Post"
   },
-  emits: ["update:modelValue", "saved"],
+  categories: {
+    type: Array,
+    default: () => []
+  }
+},
+emits: ["input", "saved"], // "input" para v-model en Vue 2
+computed: {
+  isOpen: {
+    get() {
+      return this.value; // toma el valor del padre
+    },
+    set(val) {
+      this.$emit("input", val); // notifica al padre
+    }
+  }
+},
   data() {
     return {
       post: {
@@ -61,16 +71,6 @@ export default {
         category_id: ""
       }
     };
-  },
-  computed: {
-    isOpen: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", value);
-      }
-    }
   },
   methods: {
     close() {
@@ -82,7 +82,11 @@ export default {
     },
     async submitPost() {
       try {
-        const response = await axios.post("/api/posts", this.post);
+        const response = await api.post("/posts", {
+          title: this.post.title,
+          content: this.post.content,
+          category_id: this.post.category_id
+        });
         this.$emit("saved", response.data);
         this.close();
       } catch (error) {
