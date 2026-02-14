@@ -34,6 +34,7 @@
               <th>Autor</th>
               <th>Categoría</th>
               <th>Fecha</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -42,6 +43,9 @@
               <td>{{ post.user?.name }}</td>
               <td>{{ post.category?.name }}</td>
               <td>{{ formatDate(post.created_at) }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary" @click="openEditModal(post)">Editar</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -83,21 +87,31 @@
         </ul>
       </nav>
     </div>
+<!-- Modal Para Crear Post -->
 <PostModal
   v-model="showModal"
   :categories="categories"
   @saved="addPost"
+/>
+<!-- Modal Para Editar Post -->
+<EditModal
+  :value="showEditModal"
+  :postData="selectedPost"
+  :categories="categories"
+  @input="showEditModal = $event"
+  @saved="onSaved"
 />
   </div>
 </template>
 
 <script>
 import PostModal from "@/components/PostModal.vue";
+import EditModal from "@/components/EditModal.vue";
 import api from "@/services/api";
 
 export default {
   name: "PostsList",
-  components: { PostModal },
+  components: { PostModal, EditModal },
   data() {
     return {
       posts: [],
@@ -105,7 +119,9 @@ export default {
       lastPage: 1,
       categories: [],
       selectedCategory: "",
-      showModal: false
+      showModal: false,
+      showEditModal: false,
+      selectedPost: null
     };
   },
 
@@ -154,7 +170,11 @@ async getPosts(page = 1) {
 
   addPost(newPost) {
     this.posts.push(newPost);
-  }
+  },
+    openEditModal(post) {
+    this.selectedPost = post;
+    this.showEditModal = true;
+  },
 }
 };
 </script>

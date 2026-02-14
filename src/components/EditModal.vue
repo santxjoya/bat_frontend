@@ -3,7 +3,7 @@
     <div class="modal-content">
       <h5>{{ title }}</h5>
 
-      <form @submit.prevent="submitPost">
+      <form @submit.prevent="submitPut">
         <!-- Título -->
         <div class="mb-3">
           <label class="form-label">Título</label>
@@ -40,37 +40,55 @@
 import api from "@/services/api";
 
 export default {
-  name: "PostModal",
-props: {
-  value: Boolean,
-  title: {
-    type: String,
-    default: "Crear Post"
-  },
-  categories: {
-    type: Array,
-    default: () => []
-  }
-},
-emits: ["input", "saved"],
-computed: {
-  isOpen: {
-    get() {
-      return this.value;
+  name: "EditModal",
+  props: {
+    value: Boolean,
+    postData: {
+      type: Object,
+      required: true
     },
-    set(val) {
-      this.$emit("input", val);
+    title: {
+      type: String,
+      default: "Editar Post"
+    },
+    categories: {
+      type: Array,
+      default: () => []
     }
-  }
-},
+  },
+  emits: ["input", "saved"],
+  computed: {
+    isOpen: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+      }
+    }
+  },
   data() {
     return {
       post: {
+        id: null,
         title: "",
         content: "",
         category_id: ""
       }
     };
+  },
+  watch: {
+    // Cuando se abre el modal, se llenan los datos del post
+    isOpen(newVal) {
+      if (newVal && this.postData) {
+        this.post = { 
+          id: this.postData.id,
+          title: this.postData.title,
+          content: this.postData.content,
+          category_id: this.postData.category?.id || ""
+        };
+      }
+    }
   },
   methods: {
     close() {
@@ -78,11 +96,11 @@ computed: {
       this.clearForm();
     },
     clearForm() {
-      this.post = { title: "", content: "", category_id: "" };
+      this.post = { id: null, title: "", content: "", category_id: "" };
     },
-    async submitPost() {
+    async submitPut() {
       try {
-        const response = await api.post("/posts", {
+        const response = await api.put(`/posts/${this.post.id}`, {
           title: this.post.title,
           content: this.post.content,
           category_id: this.post.category_id
@@ -91,7 +109,7 @@ computed: {
         this.close();
       } catch (error) {
         console.error(error);
-        alert("Error al crear el post. Revisa los datos e intenta de nuevo.");
+        alert("Error al actualizar el post. Revisa los datos e intenta de nuevo.");
       }
     }
   }
