@@ -3,7 +3,7 @@ import Router from 'vue-router';
 
 import LoginView from '../views/LoginView.vue';
 import RegisterView from "../views/RegisterView.vue";
-// import PostsList from '../components/PostsList.vue';
+import PostsList from "../views/PostsList.vue";
 
 Vue.use(Router);
 
@@ -17,11 +17,11 @@ const router = new Router({
     {
       path: "/register",
       component: RegisterView
+    },
+    {
+      path: '/',
+      component: PostsList
     }
-    // {
-    //   path: '/',
-    //   component: PostsList
-    // }
   ]
 });
 
