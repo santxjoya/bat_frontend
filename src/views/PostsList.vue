@@ -45,6 +45,7 @@
               <td>{{ formatDate(post.created_at) }}</td>
               <td>
                 <button class="btn btn-sm btn-outline-primary" @click="openEditModal(post)">Editar</button>
+                <button class="btn btn-sm btn-outline-danger" @click="selectedPost = post; showDeleteModal = true">Eliminar</button>
               </td>
             </tr>
           </tbody>
@@ -101,17 +102,32 @@
   @input="showEditModal = $event"
   @saved="onSaved"
 />
+<!-- Modal Para Editar Post -->
+<EditModal
+  :value="showEditModal"
+  :postData="selectedPost"
+  :categories="categories"
+  @input="showEditModal = $event"
+  @saved="onSaved"
+/>
+<!-- Modal Para Eliminar Post -->
+<DeleteModal
+  v-model="showDeleteModal"
+  :post="selectedPost"
+  @deleted="deletePost"
+/>
   </div>
 </template>
 
 <script>
 import PostModal from "@/components/PostModal.vue";
 import EditModal from "@/components/EditModal.vue";
+import DeleteModal from "@/components/DeleteModal.vue";
 import api from "@/services/api";
 
 export default {
   name: "PostsList",
-  components: { PostModal, EditModal },
+  components: { PostModal, EditModal, DeleteModal },
   data() {
     return {
       posts: [],
@@ -121,7 +137,8 @@ export default {
       selectedCategory: "",
       showModal: false,
       showEditModal: false,
-      selectedPost: null
+      selectedPost: null,
+      showDeleteModal: false
     };
   },
 
@@ -131,6 +148,14 @@ export default {
   },
 
 methods: {
+    async deletePost(id) {
+      try {
+        await api.delete(`/posts/${id}`);
+        this.posts = this.posts.filter(p => p.id !== id);
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo eliminar el post.");
+      }},
 async getPosts(page = 1) {
   try {
 
